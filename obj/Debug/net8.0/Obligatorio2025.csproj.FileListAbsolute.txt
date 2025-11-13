@@ -1,4 +1,0 @@
-C:\Users\Administrator\Desktop\FIANL\Obligatorio2025\obj\Debug\net8.0\Obligatorio2025.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Administrator\Desktop\FIANL\Obligatorio2025\obj\Debug\net8.0\Obligatorio2025.AssemblyInfoInputs.cache
-C:\Users\Administrator\Desktop\FIANL\Obligatorio2025\obj\Debug\net8.0\Obligatorio2025.AssemblyInfo.cs
-C:\Users\Administrator\Desktop\FIANL\Obligatorio2025\obj\Debug\net8.0\Obligatorio2025.csproj.CoreCompileInputs.cache
