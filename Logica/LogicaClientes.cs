@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using Obligatorio2025.Datos;
 using Obligatorio.Datos;
 
 namespace Logica
@@ -26,6 +27,7 @@ namespace Logica
                 if (clientedatos.ListarClientes() != null)
                 {
                     tabla = clientedatos.ListarClientes();
+
                 }
 
                 return tabla;
@@ -55,6 +57,17 @@ namespace Logica
         //metodo para modificar clientes
         public String ModificarClientes(Cliente cliente)
         {
+
+            // Validaciones
+            if (cliente.Id <= 0)
+                throw new Exception("ID de cliente inválido");
+
+            if (string.IsNullOrWhiteSpace(cliente.RazonSocial))
+                throw new Exception("La razón social es obligatoria");
+
+            if (string.IsNullOrWhiteSpace(cliente.RUT))
+                throw new Exception("El RUT es obligatorio");
+
             try
             {
                 clientedatos.ModificarClientes(cliente);
@@ -65,12 +78,17 @@ namespace Logica
                 return "Error al modificar cliente: " + ex.Message;
             }
         }
+
+
+
+
+
         //eliminar clientes
         public String EliminarClientes(int id)
         {
             try
             {
-                clientedatos.EliminarClientes(id);
+                clientedatos.EliminarCliente(id);
                 return "Cliente eliminado con exito";
             }
             catch (Exception ex)
@@ -81,8 +99,22 @@ namespace Logica
 
 
 
+        // metodo para buscar cliente por Id
+        public Cliente BuscarCliente(int id)
+        {
+            
+            if (id <= 0)
+                throw new Exception("ID de cliente inválido");
 
-
+            try
+            {
+                return clientedatos.BuscarClientePorId(id);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al buscar cliente: " + ex.Message);
+            }
+        }
 
 
 

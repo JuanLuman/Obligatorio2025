@@ -3,34 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework;
+using Objetos;
 
-namespace Objetos
+namespace Obligatorio2025.Objetos
 {
     public class FacturaVenta
     {
-        public string NumeroFactura { get; set; }
+
+        public int NroFactura { get; set; }
         public int IdCliente { get; set; }
         public int IdProyecto { get; set; }
         public DateTime FechaInicio { get; set; }
-        public TipoFactura tipo { get; set; }
-
-
         public double SubTotal { get; set; }
         public double IVA { get; set; }
-        public double IRAE { get; set; }
-        public double MontoTotal { get; set; }
+        public double Total { get; set; }
 
-
-        public Cliente cliente;
-        public Proyecto proyecto;
-        // public List Detalles { get; set; }
+        // Lista de renglones (para trabajar en memoria)
+        public List<DetalleFactura> Renglones { get; set; }
 
         public FacturaVenta()
         {
-            FechaInicio = DateTime.Now;
-
-
+            Renglones = new List<DetalleFactura>();
         }
+
+        // Método para calcular totales
+        public void CalcularTotales()
+        { 
+            SubTotal = 0;
+            foreach (var factura in Renglones)
+            {
+                SubTotal += factura.Monto;
+            }
+
+            IVA = SubTotal * 0.22; // 22% de IVA en Uruguay
+            Total = SubTotal + IVA;
+        }
+
+
+
+
 
 
 

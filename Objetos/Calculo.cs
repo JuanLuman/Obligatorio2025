@@ -13,14 +13,22 @@ namespace Obligatorio2025.Objetos
         public int Mes { get; set; }
         public double TotalVentas { get; set; }
         public double TotalCompras { get; set; }
-        public double IVAVentas { get; set; }
-        public double IVACompras { get; set; }
+        public double IVA { get; set; }
         
         public double IRAE { get; set; }
         public DateTime FechaDelCalculo { get; set; }
 
 
 
+
+
+        public void Calcular (double ventas, double compras)
+        {
+            TotalVentas = ventas;
+            TotalCompras = compras;
+            IVA = (ventas * 0.22) - (compras * 0.22); // IVA ventas - IVA compras
+            IRAE = ventas * 0.12; // 12% de la facturación
+        }
 
 
 

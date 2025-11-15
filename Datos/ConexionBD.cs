@@ -12,7 +12,7 @@ namespace Obligatorio.Datos
     {
         //String connectionString = "data source = JUAN\\SQLEXPRESS; initial catalog = Tienda; integrated security = true";
         SqlConnection conexion = new SqlConnection("data source = JUAN\\SQLEXPRESS; " +
-                                                                                         "initial catalog = Tienda; " +
+                                                                                         "initial catalog = Obligatorio2025; " +
                                                                                          "integrated security = true");
 
         public SqlConnection AbrirConexion()

@@ -6,7 +6,20 @@ using System.Threading.Tasks;
 
 namespace Obligatorio2025.Datos
 {
-    internal class FacturaCompraDatos
+    public class FacturaCompraDatos
     {
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

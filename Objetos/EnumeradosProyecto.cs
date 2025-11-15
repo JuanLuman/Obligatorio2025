@@ -11,17 +11,17 @@ namespace Obligatorio2025.Objetos
 
         public enum TipoProyecto
         {
-            PorHora = 1,
-            MontoMensual = 2,
-            PrecioFijo = 3
+            PorHora ,
+            MontoMensual ,
+            PrecioFijo ,
         }
 
         public enum EstadoProyecto
         {
-            Planificado = 1,
-            EnCurso = 2,
-            Finalizado = 3,
-            Cancelado = 4
+            Planificado ,
+            EnCurso ,
+            Finalizado ,
+            Cancelado ,
         }
 
 

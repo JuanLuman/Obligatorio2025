@@ -5,20 +5,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Objetos
+namespace Obligatorio2025.Objetos
 {
     public class FacturaCompra
     {
 
-        public int NumFactura { get; set; }
-        public string RUTPr { get; set; }
-        public string RazonSocialPr { get; set; }
-        public string DireccionPr { get; set; }
+        public int NroFactura { get; set; }
+        public string ProveedorRazonSocial { get; set; }
+        public string ProveedorRUT { get; set; }
+        public string ProveedorDireccion { get; set; }
+        public DateTime Fecha { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal IVA { get; set; }
+        public decimal Total { get; set; }
+
+        public FacturaCompra() { }
 
 
-        public double SubTotal { get; set; }
-        public double IVA;
-        public double MontoTotal;
+   
 
 
 

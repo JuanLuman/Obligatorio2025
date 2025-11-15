@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Obligatorio2025.Objetos
 {
-    internal class estado
+    public class Estado
     {
-        enum Estado
+        enum EstadoProyecto
         {
             Activo,
             Inactivo,
