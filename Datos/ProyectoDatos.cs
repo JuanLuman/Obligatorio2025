@@ -10,34 +10,55 @@ namespace Obligatorio.Datos
     {
         ConexionBD conexion = new ConexionBD();
 
-        public DataTable ListarProyectos()
-        {
-            DataTable tabla = new DataTable();
 
-            try
+
+
+        public List<Proyecto> ListarProyectos()
+        {
+            var listarProyectos = new List<Proyecto>();
+
+            using (SqlConnection con = conexion.AbrirConexion())
             {
-                using (SqlConnection con = conexion.AbrirConexion())
                 using (SqlCommand comando = new SqlCommand("ListarProyectos", con))
                 {
                     comando.CommandType = CommandType.StoredProcedure;
 
-                    using (SqlDataReader leer = comando.ExecuteReader())
+                    try
                     {
-                        tabla.Load(leer);
+
+
+                        using (SqlDataReader reader = comando.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var proyecto = new Proyecto
+                                {
+                                    IdCliente = reader.GetInt32(reader.GetOrdinal("IdCliente")),
+                                    NombreProyecto = reader.GetString(reader.GetOrdinal("RazonSocial")),
+                                    FechaInicio = reader.GetDateTime(reader.GetOrdinal("FechaInicio ")),
+                                    PresupuestoInicial = reader.GetDouble(reader.GetOrdinal(" PresupuestoInicial ")),
+                                    FechaFinPlanificada = reader.GetDateTime(reader.GetOrdinal(" FechaFinPlanificada ")),
+                                    FechaFin = reader.GetDateTime(reader.GetOrdinal(" FechaFin")),
+                                    
+
+
+                                };
+
+                                listarProyectos.Add(proyecto);
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new Exception("Error al listar proyectos " + ex.Message);
                     }
                 }
             }
-            catch (SqlException ex)
-            {
-                Console.WriteLine("Error al listar proyectos: " + ex.Message);
-                throw; 
-            }
-            finally
-            {
-                conexion.CerrarConexion();
-            }
-            return tabla;
+
+            return listarProyectos;
         }
+
+
 
 
         public void IngresarProyecto(Proyecto proyecto)

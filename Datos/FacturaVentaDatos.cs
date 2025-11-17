@@ -17,97 +17,143 @@ namespace Obligatorio2025.Datos
 
 
 
-
-        public DataTable ListarFacturaVenta()
+        public List<FacturaVenta> ListarFacturas()
         {
-            DataTable tabla = new DataTable();
+            var listarFacturas = new List<FacturaVenta>();
             ConexionBD conexion = new ConexionBD();
-            try
-            {
 
-                using (SqlConnection con = conexion.AbrirConexion())
-                using (SqlCommand comando = new SqlCommand("ListarFacturaVenta", con))
+            using (SqlConnection con = conexion.AbrirConexion())
+            {
+                using (SqlCommand comando = new SqlCommand("ListarFacturas", con))
                 {
                     comando.CommandType = CommandType.StoredProcedure;
 
-                    using (SqlDataReader leer = comando.ExecuteReader())
+                    try
                     {
-                        tabla.Load(leer);
+
+
+                        using (SqlDataReader reader = comando.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var factura = new FacturaVenta
+                                {
+                                    NroFactura = reader.GetInt32(reader.GetOrdinal("NroFactura")),
+                                    IdCliente = reader.GetInt32(reader.GetOrdinal("IdCliente ")),
+                                    IdProyecto = reader.GetInt32(reader.GetOrdinal("IdProyecto ")),
+                                    FechaInicio = reader.GetDateTime(reader.GetOrdinal("  FechaInicio  ")),
+                                    SubTotal = reader.GetDouble(reader.GetOrdinal(" SubTotal")),
+                                    IVA = reader.GetDouble(reader.GetOrdinal(" IVA ")),
+                                    Total = reader.GetDouble(reader.GetOrdinal("Total")),
+                                    Descripcion = reader.GetString(reader.GetOrdinal(" Descripcion  ")),
+
+
+
+                                };
+
+                                listarFacturas.Add(factura);
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new Exception("Error al listar facturas " + ex.Message);
+                    }
+                    finally 
+                    {
+                        conexion.CerrarConexion();
+                        
                     }
                 }
+            }
 
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine("Error al listar Factura: " + ex.Message);
-                throw;
-            }
-            finally
-            {
-                //leer.Close();
-                conexion.CerrarConexion();
-            }
-            return tabla;
+            return listarFacturas;
         }
 
 
 
 
-        // Obtener cálculo mensual
-
-        public Calculo ObtenerCalculoMensual(int mes, int año)
+        public void AgregarFacturaVenta(FacturaVenta factura)
         {
-            Calculo calculo = new Calculo { Mes = mes, Año = año };
+
+            if (factura.IdCliente <= 0)
+                throw new Exception("Debe seleccionar un cliente.");
+
+            foreach (var ren in factura.Renglones)
+            {
+                if (ren.Monto <= 0)
+                    throw new Exception("Debe ingresar un monto mayor a cero.");
+                if (string.IsNullOrWhiteSpace(ren.Descripcion))
+                    throw new Exception("Debe tener una descripción.");
+            }
 
             ConexionBD conexion = new ConexionBD();
-            try
+
+            using (SqlConnection con = conexion.AbrirConexion())
             {
-                using (SqlConnection con = conexion.AbrirConexion())
+                
+                SqlTransaction tx = con.BeginTransaction();
+
+                try
                 {
+                    int nuevoIdFactura = 0;
 
-                    double totalVentas = 0;
-                    using (SqlCommand comando = new SqlCommand("ObtenerVentaMensual", con))
+                    using (SqlCommand comando = new SqlCommand("InsertarFacturaVenta", con, tx))
                     {
                         comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.AddWithValue("@Mes", SqlDbType.Int).Value = mes;
-                        comando.Parameters.AddWithValue("@Año", SqlDbType.Int).Value = año;
 
-                        object result = comando.ExecuteScalar();
-                        totalVentas = result != DBNull.Value ? Convert.ToDouble(result) : 0;
+                        comando.Parameters.AddWithValue("@IdCliente", factura.IdCliente);
+                        comando.Parameters.AddWithValue("@NroFactura", factura.NroFactura);
+                        comando.Parameters.AddWithValue("@IdProyecto", factura.IdProyecto);
+                        comando.Parameters.AddWithValue("@FechaInicio", factura.FechaInicio);
+
+                        SqlParameter outputId = new SqlParameter("@NuevoIdFactura", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+
+                        comando.Parameters.Add(outputId);
+                        comando.ExecuteNonQuery();
+
+                        nuevoIdFactura = Convert.ToInt32(outputId.Value);
                     }
 
-                    // ===== OBTENER TOTAL COMPRAS =====
-                    double totalCompras = 0;
-                    using (SqlCommand comando = new SqlCommand("ObtenerCompraMensual", con))
+                    // inserto renglon
+                    foreach (var renglon in factura.Renglones)
                     {
-                        comando.CommandType = CommandType.StoredProcedure;
-                        comando.Parameters.Add("@Mes", SqlDbType.Int).Value = mes;
-                        comando.Parameters.Add("@Año", SqlDbType.Int).Value = año;
+                        using (SqlCommand comando = new SqlCommand("InsertarDetalleFactura", con, tx))
+                        {
+                            comando.CommandType = CommandType.StoredProcedure;
 
-                        object result = comando.ExecuteScalar();
-                        totalCompras = result != DBNull.Value ? Convert.ToDouble(result) : 0;
+                            comando.Parameters.AddWithValue("@IdFactura", nuevoIdFactura);
+                            comando.Parameters.AddWithValue("@Monto", renglon.Monto);
+                            comando.Parameters.AddWithValue("@Descripcion", renglon.Descripcion);
+
+                            comando.ExecuteNonQuery();
+                            comando.Parameters.Clear();
+                        }
                     }
 
-                    // calculo IVA , IRAE
-                    calculo.Calcular(totalVentas, totalCompras);
+                    // Confirmar si todo salió bien
+                    tx.Commit();
+                }
+                catch (Exception)
+                {
+                    tx.Rollback();
+                    throw;
+                }
+                finally 
+                {
+                    conexion.CerrarConexion();
+                  
                 }
             }
-            catch (SqlException ex)
-            {
-                throw new Exception("Error al obtener cálculo mensual: " + ex.Message);
-            }
-
-            return calculo;
         }
 
 
 
 
-
-
-
-
-
+        
 
 
 

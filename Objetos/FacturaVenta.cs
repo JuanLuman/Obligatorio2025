@@ -18,8 +18,10 @@ namespace Obligatorio2025.Objetos
         public double SubTotal { get; set; }
         public double IVA { get; set; }
         public double Total { get; set; }
+        public string Descripcion { get; set; }
 
-        // Lista de renglones (para trabajar en memoria)
+
+        // Lista de renglones 
         public List<DetalleFactura> Renglones { get; set; }
 
         public FacturaVenta()
@@ -36,7 +38,7 @@ namespace Obligatorio2025.Objetos
                 SubTotal += factura.Monto;
             }
 
-            IVA = SubTotal * 0.22; // 22% de IVA en Uruguay
+            IVA = SubTotal * 0.22; 
             Total = SubTotal + IVA;
         }
 

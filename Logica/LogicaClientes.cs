@@ -18,26 +18,18 @@ namespace Logica
         ClienteDatos clientedatos = new ClienteDatos();
 
 
-        //metodo para listar clientes
-        public DataTable ListarClientes()
+        public List<Cliente> ListarClientes()
         {
             try
             {
-                DataTable tabla = new DataTable();
-                if (clientedatos.ListarClientes() != null)
-                {
-                    tabla = clientedatos.ListarClientes();
-
-                }
-
-                return tabla;
+                return clientedatos.ListarClientes();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error al listar clientes: " + ex.Message);
-                return null;
+                throw new Exception("Error en la lógica de negocio: " + ex.Message);
             }
         }
+
 
 
         //metodo para ingresar clientes
@@ -59,7 +51,7 @@ namespace Logica
         {
 
             // Validaciones
-            if (cliente.Id <= 0)
+            if (cliente.IdCliente <= 0)
                 throw new Exception("ID de cliente inválido");
 
             if (string.IsNullOrWhiteSpace(cliente.RazonSocial))
@@ -84,7 +76,7 @@ namespace Logica
 
 
         //eliminar clientes
-        public String EliminarClientes(int id)
+        public String EliminarCliente(int id)
         {
             try
             {

@@ -8,8 +8,8 @@ namespace Objetos
 {
     public class DetalleFactura
     {
-        public int Id { get; set; }
-        public int FacturaId { get; set; }
+        public int IdFactura { get; set; }
+        //public int FacturaId { get; set; }
         public string Descripcion { get; set; }
         public double Monto { get; set; }
 

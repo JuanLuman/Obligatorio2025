@@ -13,33 +13,52 @@ namespace Obligatorio.Datos
         SqlCommand comando = new SqlCommand();
         SqlDataReader leer;
 
-        DataTable tabla = new DataTable();
-        //  Cliente clientes = new Cliente();
+       
 
 
-        public DataTable ListarClientes()
+        public List<Cliente> ListarClientes()
         {
-            try
-            {
-                comando.Connection = conexion.AbrirConexion();
-                comando.CommandText = "ListarClientes";
-                comando.CommandType = CommandType.StoredProcedure;
-                leer = comando.ExecuteReader();
-                tabla.Load(leer);
+            var listaClientes = new List<Cliente>();
 
-            }
-            catch (SqlException ex)
+            using (SqlConnection con = conexion.AbrirConexion())
             {
-                Console.WriteLine("Error al listar clientes: " + ex.Message);
-                return null;
-            }
-            finally
-            {
-                conexion.CerrarConexion();
+                using (SqlCommand comando = new SqlCommand("ListarClientes", con))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+
+                    try
+                    {
+                        
+
+                        using (SqlDataReader reader = comando.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var cliente = new Cliente
+                                {
+                                    IdCliente = reader.GetInt32(reader.GetOrdinal("IdCliente")),
+                                    RazonSocial = reader.GetString(reader.GetOrdinal("RazonSocial")),
+                                    RUT = reader.GetString(reader.GetOrdinal("RUT")),
+                                    Direccion = reader.GetString(reader.GetOrdinal(" Direccion")),
+                                    
+                                };
+
+                                listaClientes.Add(cliente);
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        throw new Exception("Error al listar clientes: " + ex.Message);
+                    }
+                }
             }
 
-            return tabla;
+            return listaClientes;
         }
+
+
+
 
 
         public void IngresarClientes(Cliente cliente)
@@ -72,30 +91,34 @@ namespace Obligatorio.Datos
 
 
 
+  
         public void EliminarCliente(int id)
         {
+            ConexionBD conexion = new ConexionBD();
             try
             {
-               
-                comando.Connection = conexion.AbrirConexion();
-                comando.CommandText = "EliminarCliente";
-                comando.CommandType = CommandType.StoredProcedure;
+                using (SqlConnection con = conexion.AbrirConexion())
+                using (SqlCommand comando = new SqlCommand("EliminarCliente", con))
+                {
+                    comando.CommandType = CommandType.StoredProcedure;
+                    comando.Parameters.AddWithValue("@id", SqlDbType.Int).Value = id;
 
-                comando.Parameters.AddWithValue("@IdCliente", id);
-                comando.ExecuteNonQuery();
-                comando.Parameters.Clear();
-
+                    comando.ExecuteNonQuery();
+                    comando.Parameters.Clear();
+                }
             }
             catch (SqlException ex)
             {
-
                 Console.WriteLine("Error al eliminar cliente: " + ex.Message);
+                throw;
             }
             finally
             {
+
                 conexion.CerrarConexion();
             }
         }
+
 
 
 
@@ -110,7 +133,8 @@ namespace Obligatorio.Datos
                 comando.CommandText = "ModificarCliente";
                 comando.CommandType = CommandType.StoredProcedure;
 
-                
+               
+                comando.Parameters.AddWithValue("@IdCliente", cliente.IdCliente);
                 comando.Parameters.AddWithValue("@RazonSocial", cliente.RazonSocial);
                 comando.Parameters.AddWithValue("@RUT", cliente.RUT);
                 comando.Parameters.AddWithValue("@Direccion", cliente.Direccion);
@@ -148,7 +172,7 @@ namespace Obligatorio.Datos
 
                 comando.Parameters.AddWithValue("@IdCliente", id);
 
-                // Ejecutar lectura
+                // Ejecutar lectura  para iterar
                 reader = comando.ExecuteReader();
 
                 // Si se encuentra el registro
@@ -156,7 +180,7 @@ namespace Obligatorio.Datos
                 {
                     cliente = new Cliente
                     {
-                        Id = Convert.ToInt32(reader["IdCliente"]),
+                        IdCliente = Convert.ToInt32(reader["IdCliente"]),
                         RazonSocial = reader["RazonSocial"].ToString(),
                         RUT = reader["RUT"].ToString(),
                         Direccion = reader["Direccion"].ToString()
@@ -170,9 +194,7 @@ namespace Obligatorio.Datos
             }
             finally
             {
-                
-                    reader.Close();
-
+                 reader.Close();
                 conexion.CerrarConexion();
             }
 

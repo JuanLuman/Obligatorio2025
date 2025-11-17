@@ -1,6 +1,10 @@
-﻿using Obligatorio2025.Datos;
+﻿using Obligatorio.Datos;
+using Obligatorio2025.Datos;
+using Obligatorio2025.Objetos;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,72 +16,82 @@ namespace Obligatorio2025.Logica
 
 
 
-        private FacturaDAO facturaDAO;
-        private FacturaCompraDAO facturaCompraDAO;
-        private CalculoMensualDAO calculoDAO;
+        // Obtener cálculo mensual
 
-        public CalculoMensualLogica()
+        public Calculo ObtenerCalculoMensual(int mes, int año)
         {
-            facturaDAO = new FacturaDAO();
-            facturaCompraDAO = new FacturaCompraDAO();
-            calculoDAO = new CalculoMensualDAO();
-        }
+            Calculo calculo = new Calculo { Mes = mes, Año = año };
 
-        public CalculoMensual CalcularMensual(int anio, int mes)
-        {
+            ConexionBD conexion = new ConexionBD();
+
+            // valido meses y años
+            if (mes < 1 || mes > 12)
+                throw new Exception("El mes debe estar entre 1 y 12");
+
+            if (año > DateTime.Now.Year)
+                throw new Exception("Año inválido");
+
             try
             {
-                var facturas = facturaDAO.ListarPorMes(anio, mes);
-                var compras = facturaCompraDAO.ListarPorMes(anio, mes);
-
-                decimal totalVentas = facturas.Sum(f => f.SubTotal);
-                decimal ivaVentas = facturas.Sum(f => f.IVA);
-                decimal totalCompras = compras.Sum(c => c.SubTotal);
-                decimal ivaCompras = compras.Sum(c => c.IVA);
-
-                var calculo = new CalculoMensual
+                using (SqlConnection con = conexion.AbrirConexion())
                 {
-                    Anio = anio,
-                    Mes = mes,
-                    TotalVentas = totalVentas,
-                    TotalCompras = totalCompras,
-                    IVAVentas = ivaVentas,
-                    IVACompras = ivaCompras,
-                    IVAResultante = ivaVentas - ivaCompras,
-                    IRAE = totalVentas * 0.12m, // 12% de facturación
-                    FechaCalculo = DateTime.Now
-                };
 
-                // Guardar el cálculo
-                calculoDAO.GuardarCalculo(calculo);
+                    double totalVentas = 0;
+                    using (SqlCommand comando = new SqlCommand("ObtenerVentaMensual", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.AddWithValue("@Mes", SqlDbType.Int).Value = mes;
+                        comando.Parameters.AddWithValue("@Año", SqlDbType.Int).Value = año;
 
-                return calculo;
+                        object resultado = comando.ExecuteScalar();
+
+                        if (resultado == null || resultado == DBNull.Value)
+                        {
+                            totalVentas = 0;
+                        }
+                        else
+                        {
+                            totalVentas = Convert.ToDouble(resultado);
+                        }
+
+                       
+                    }
+
+                    // obtengo total compra
+                    double totalCompras = 0;
+                    using (SqlCommand comando = new SqlCommand("ObtenerCompraMensual", con))
+                    {
+                        comando.CommandType = CommandType.StoredProcedure;
+                        comando.Parameters.Add("@Mes", SqlDbType.Int).Value = mes;
+                        comando.Parameters.Add("@Año", SqlDbType.Int).Value = año;
+
+                        object resultado = comando.ExecuteScalar();
+
+                        if (resultado == null || resultado == DBNull.Value)
+                        {
+                            totalVentas = 0;
+                        }
+                        else
+                        {
+                            totalVentas = Convert.ToDouble(resultado);
+                        }
+                        
+                    }
+
+                    // calculo IVA , IRAE
+                    calculo.Calcular(totalVentas, totalCompras);
+                }
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
-                throw new Exception("Error al calcular mensual: " + ex.Message);
+                throw new Exception("Error al obtener cálculo mensual: " + ex.Message);
             }
+            finally
+            {
+                conexion.CerrarConexion();
+            }
+            return calculo;
         }
-
-        public CalculoMensual ConsultarCalculo(int anio, int mes)
-        {
-            try
-            {
-                return calculoDAO.ObtenerPorMes(anio, mes);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error al consultar cálculo: " + ex.Message);
-            }
-        }
-
-
-
-
-
-
-
-
 
 
 

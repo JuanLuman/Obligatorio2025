@@ -11,6 +11,24 @@ namespace Obligatorio2025
         static void Main(string[] args)
         {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
 
-
+    }
+}

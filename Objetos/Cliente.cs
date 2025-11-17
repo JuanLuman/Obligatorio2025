@@ -11,7 +11,7 @@ namespace Objetos
 {
     public class Cliente
     {
-        public int Id { get; set; }
+        public int IdCliente { get; set; }
         public String RazonSocial { get; set; }
         public String RUT { get; set; }
         public String Direccion { get; set; }

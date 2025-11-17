@@ -18,7 +18,7 @@ namespace Logica
 
         //metodo para agregar proyecto
 
-        public String agregarProyecto(Proyecto proyecto)
+        public String AgregarProyecto(Proyecto proyecto)
         {
 
             if (string.IsNullOrWhiteSpace(proyecto.NombreProyecto))
@@ -60,38 +60,18 @@ namespace Logica
 
 
 
-   
 
-        public List<Proyecto> ListarProyectos()
+
+        public List<Proyecto> ListarProyecto()
         {
+            ProyectoDatos proyecto = new ProyectoDatos();
             try
             {
-                DataTable tabla = proyectodatos.ListarProyectos();
-
-                List<Proyecto> lista = new List<Proyecto>();
-
-                foreach (DataRow fila in tabla.Rows)
-                {
-                    Proyecto proyecto = new Proyecto
-                    {
-                        Id = Convert.ToInt32(fila["Id"]),
-                        IdCliente = Convert.ToInt32(fila["IdCliente"]),
-                        NombreProyecto = fila["NombreProyecto"].ToString(),
-                        FechaInicio = Convert.ToDateTime(fila["FechaInicio"]),
-                        PresupuestoInicial = Convert.ToDouble(fila["PresupuestoInicial"]),
-                        FechaFinPlanificada = Convert.ToDateTime(fila["FechaFinPlanificada"]),
-                        FechaFin = (DateTime)(fila["FechaFin"] != DBNull.Value ? Convert.ToDateTime(fila["FechaFin"]) : (DateTime?)null),
-                        
-                    };
-
-                    lista.Add(proyecto);
-                }
-
-                return lista;
+                return proyecto.ListarProyectos();
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al listar proyectos: " + ex.Message);
+                throw new Exception("Error en listar proyecto " + ex.Message);
             }
         }
 
