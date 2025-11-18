@@ -34,10 +34,10 @@ namespace Objetos
             Estado = EstadoProyecto.Planificado;
         }
 
-        public static implicit operator Proyecto(Proyecto v)
-        {
-            throw new NotImplementedException();
-        }
+        ////public static implicit operator Proyecto(Proyecto v)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }
 

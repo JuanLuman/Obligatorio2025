@@ -69,10 +69,12 @@ namespace Obligatorio.Datos
                 comando.CommandText = "IngresarCliente";
                 comando.CommandType = CommandType.StoredProcedure;
 
-             
+
+            
                 comando.Parameters.AddWithValue("@razonsocial", cliente.RazonSocial);
                 comando.Parameters.AddWithValue("@rut", cliente.RUT);
                 comando.Parameters.AddWithValue("@direccion", cliente.Direccion);
+                comando.Parameters.AddWithValue("@IdCliente", cliente.IdCliente);
 
                 comando.ExecuteNonQuery();
                 comando.Parameters.Clear();
